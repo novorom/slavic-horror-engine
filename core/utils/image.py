@@ -11,23 +11,27 @@ def cover_resize(image: Image.Image, target_size: tuple[int, int]) -> Image.Imag
     target_ratio = target_width / target_height
     image_ratio = image.width / image.height
 
-    # Allow small tolerance for aspect ratio differences
-    tolerance = 0.05
-    
-    if abs(image_ratio - target_ratio) < tolerance:
-        # Close enough, just resize
-        return image.resize(target_size, Image.Resampling.LANCZOS)
-    
+    # Use letterbox (add black bars) instead of crop to preserve proportions
     if image_ratio > target_ratio:
-        new_width = int(image.height * target_ratio)
-        left = max((image.width - new_width) // 2, 0)
-        image = image.crop((left, 0, left + new_width, image.height))
+        # Image is wider than target - scale by height
+        new_height = target_height
+        new_width = int(target_height * image_ratio)
+        image = image.resize((new_width, new_height), Image.Resampling.LANCZOS)
+        # Crop width if needed
+        if new_width > target_width:
+            left = (new_width - target_width) // 2
+            image = image.crop((left, 0, left + target_width, target_height))
     else:
-        new_height = int(image.width / target_ratio)
-        top = max((image.height - new_height) // 2, 0)
-        image = image.crop((0, top, image.width, top + new_height))
+        # Image is taller than target - scale by width
+        new_width = target_width
+        new_height = int(target_width / image_ratio)
+        image = image.resize((new_width, new_height), Image.Resampling.LANCZOS)
+        # Crop height if needed
+        if new_height > target_height:
+            top = (new_height - target_height) // 2
+            image = image.crop((0, top, target_width, top + target_height))
 
-    return image.resize(target_size, Image.Resampling.LANCZOS)
+    return image
 
 
 def verify_image(path: Path, expected_size: tuple[int, int]) -> bool:

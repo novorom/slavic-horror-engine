@@ -50,11 +50,11 @@ class PollinationsImageProvider(ImageProvider):
     def _build_url(self, prompt: str) -> str:
         seed = random.randint(1, 999_999_999)
         settings = self.config.pollinations
+        # Remove width/height parameters to let AI generate natural aspect ratio
+        # Then we'll resize to target dimensions
         return (
             f"{settings.base_url}/{quote(prompt)}"
-            f"?width={settings.width}"
-            f"&height={settings.height}"
-            f"&model={settings.model}"
+            f"?model={settings.model}"
             f"&enhance={str(settings.enhance).lower()}"
             f"&safe={str(settings.safe).lower()}"
             f"&nologo={str(settings.nologo).lower()}"
