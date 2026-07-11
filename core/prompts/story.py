@@ -14,9 +14,10 @@ Language: Spanish
 Scene count: {scene_count}
 
 Rules:
-- The first line is a brutal hook.
+- The first line is an AGGRESSIVE hook that stops scrolling immediately.
+- Use phrases like: "No volverás a dormir", "Te están observando", "No corras"
+- Address the viewer directly: "Tú, que estás viendo esto..."
 - Every scene has 5-12 words.
-- Use second person when possible.
 - Escalate fear every scene.
 - ÚLTIMA ESCENA — PREGUNTA VIRAL.
 - The final line must be a direct question to the viewer.
@@ -46,5 +47,7 @@ Return this exact JSON shape:
 IMAGE_STYLE_SUFFIX = """
 photorealistic slavic horror movie still, vertical 9:16, 35mm lens,
 cinematic lighting, volumetric fog, cold forest atmosphere, natural skin,
-high detail, no text, no logo, no watermark
+high detail, no text, no logo, no watermark, blood moon, glowing eyes,
+ancient symbols, high contrast, dark shadows, eerie lighting, mist,
+supernatural atmosphere, nightmare fuel, disturbing imagery
 """

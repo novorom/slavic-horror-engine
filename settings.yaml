@@ -47,10 +47,10 @@ video:
   audio_codec: "aac"
   preset: "medium"
   crf: 20
-  scene_duration_seconds: 5.8
-  fallback_duration_seconds: 5.0
-  min_total_seconds: 35
-  max_total_seconds: 62
+  scene_duration_seconds: 5.5
+  fallback_duration_seconds: 4.8
+  min_total_seconds: 45
+  max_total_seconds: 50
 
 story:
   scene_count: 8
@@ -68,6 +68,10 @@ story:
     - "Bannik"
     - "Upyr"
     - "Viy"
+    - "Koschei"
+    - "Zmey Gorynych"
+    - "Midnight Bride"
+    - "Lady Midday"
 
 audio:
   voice: "es-ES-ElviraNeural"
@@ -98,13 +102,14 @@ audio:
 
 subtitles:
   font_file: ""
-  font_size: 72
+  font_size: 80
   max_chars_per_line: 24
   bottom_margin: 260
   text_color: "#BCA37A"
   stroke_color: "#090706"
   stroke_width: 5
   box_opacity: 170
+  horror_color: "#8B0000"
 
 logging:
   level: "INFO"
