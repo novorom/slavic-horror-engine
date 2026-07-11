@@ -1,0 +1,28 @@
+[project]
+name = "slavic-horror-engine"
+version = "2.0.0"
+description = "Automatic vertical Slavic horror reels pipeline with Gemini, Pollinations Flux, TTS, subtitles and MoviePy 2.x."
+requires-python = ">=3.12"
+dependencies = [
+    "edge-tts>=7.0.0",
+    "google-genai>=1.20.0",
+    "moviepy>=2.0.0,<3.0.0",
+    "pillow>=10.4.0",
+    "pydantic>=2.8.0",
+    "python-dotenv>=1.0.1",
+    "pyyaml>=6.0.2",
+    "requests>=2.32.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.2.0",
+]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-q"
