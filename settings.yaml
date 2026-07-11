@@ -109,6 +109,12 @@ subtitles:
   stroke_color: "#090706"
   stroke_width: 5
   box_opacity: 170
+
+watermark:
+  enabled: true
+  position: "bottom_right"
+  opacity: 0.7
+  size: 0.08
   horror_color: "#8B0000"
 
 logging:

@@ -1,0 +1,54 @@
+YouTube End Screens Template Guide
+===================================
+
+End Screen Timing:
+- Start: Last 20 seconds of video
+- Duration: 5-20 seconds
+- Position: Don't overlap with important content
+
+End Screen Elements (max 4 elements):
+
+1. Subscribe Button (Required)
+   - Text: "Suscríbete para más terror"
+   - Position: Top left or center
+   - Style: Red subscribe button
+
+2. Latest Video
+   - Text: "Nuevo video cada día"
+   - Position: Top right
+   - Shows most recent upload
+
+3. Playlist Link
+   - Text: "Más historias de terror"
+   - Playlist: "Cuentos de Terror Eslavo"
+   - Position: Bottom left
+
+4. Channel Link
+   - Text: "Cuentos de Terror Eslavo"
+   - Position: Bottom right
+   - Links to channel main page
+
+Custom End Screen Text:
+- "¿Te atreves a ver más?"
+- "El terror continúa..."
+- "Suscríbete para no perderte nada"
+- "Más leyendas oscuras esperan"
+
+End Screen Best Practices:
+- Keep it simple and clean
+- Use consistent branding
+- Don't distract from video content
+- Test on mobile devices
+- Ensure good contrast
+
+How to Add End Screens:
+1. YouTube Studio → Content
+2. Select video → Edit
+3. End Screens tab
+4. Add elements using template above
+5. Save changes
+
+Automated End Screens:
+- Can set default template in YouTube Studio
+- Apply to all new videos automatically
+- Customize per video if needed

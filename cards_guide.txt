@@ -1,0 +1,70 @@
+YouTube Cards Template Guide
+==============================
+
+Card Timing (max 5 cards per video):
+- Card 1: 0:05 - Early engagement
+- Card 2: 0:15 - Mid-video engagement  
+- Card 3: 0:25 - Related content
+- Card 4: 0:35 - Playlist promotion
+- Card 5: 0:40 - Final call-to-action
+
+Card Types:
+
+1. Video Link Cards
+   - Link to related horror stories
+   - Text: "Historia similar: [monster name]"
+   - Teaser text: "¿Qué te espera en el bosque?"
+   - Custom timing: When relevant monster mentioned
+
+2. Playlist Cards
+   - Link to "Cuentos de Terror Eslavo" playlist
+   - Text: "Más historias de [monster type]"
+   - Teaser: "Colección completa de terror"
+   - Timing: After main story revealed
+
+3. Channel Cards
+   - Link to channel main page
+   - Text: "Suscríbete para más terror"
+   - Teaser: "Nuevo video cada día"
+   - Timing: End of video
+
+4. Poll Cards (for engagement)
+   - Question: "¿Cuál es tu monstruo eslavo favorito?"
+   - Options: Baba Yaga, Leshy, Rusalka, Viy
+   - Timing: Mid-video when monster introduced
+
+Card Text Templates:
+- "Mira también: [related video title]"
+- "Colección completa: [playlist name]"
+- "¿Te gustaría más historias de [monster]?"
+- "El terror continúa en [video title]"
+- "Suscríbete para no perderte nada"
+
+Card Best Practices:
+- Keep text short and engaging
+- Use custom thumbnails for cards
+- Don't overwhelm viewers with too many cards
+- Time cards to match video content
+- Test on mobile devices
+- Use consistent branding
+
+Card Teaser Text Examples:
+- "El secreto del bosque..."
+- "Lo que nadie te contó..."
+- "¿Te atreves a ver esto?"
+- "La verdad sobre [monster]..."
+- "Algo acecha en las sombras..."
+
+How to Add Cards:
+1. YouTube Studio → Content
+2. Select video → Edit
+3. Cards tab
+4. Add card at desired timestamp
+5. Choose card type and content
+6. Customize text and timing
+7. Save changes
+
+Automated Cards:
+- Can set default card templates
+- Apply to similar videos
+- Customize per video for relevance

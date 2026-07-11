@@ -1,0 +1,50 @@
+YouTube Channel Playlist Structure
+====================================
+
+Main Playlists:
+1. "Cuentos de Terror Eslavo" - Все видео канала (основной плейлист)
+2. "Monstruos Legendarios" - По конкретным монстрам:
+   - Baba Yaga
+   - Leshy (Леший)
+   - Rusalka (Русалка)
+   - Vodyanoy (Водяной)
+   - Kikimora (Кикимора)
+   - Domovoy (Домовой)
+   - Likho (Лихо)
+   - Poludnitsa (Полудница)
+   - Bannik (Банник)
+   - Upyr (Упырь)
+   - Viy (Вий)
+   - Koschei (Кощей)
+   - Zmey Gorynych (Змей Горыныч)
+
+3. "Terror por Región" - По регионам:
+   - Folklore Ruso
+   - Folklore Ucraniano
+   - Folklore Polaco
+   - Folklore Checo
+   - Folklore Búlgaro
+
+4. "Tipos de Terror" - По типу ужаса:
+   - Terror en el Bosque
+   - Terror Acuático
+   - Terror Doméstico
+   - Terror Nocturno
+   - Curses and Maldiciones
+
+5. "Los Más Aterradores" - Лучшие видео (топ рейтинг)
+
+Playlist Settings:
+- Public visibility
+- Add description for each playlist
+- Add relevant keywords
+- Set playlist thumbnail (use video thumbnails)
+- Enable "Allow embedding" for wider reach
+
+Playlist Descriptions Example:
+"Cuentos de Baba Yaga: Las historias más aterradoras de la bruja del bosque eslavo. Sumérgete en el mundo de Baba Yaga y su cabaña de patas de pollo."
+
+Thumbnail Strategy:
+- Use the most scary/engaging thumbnail from videos in playlist
+- Consistent style across all playlists
+- Include playlist name in thumbnail text

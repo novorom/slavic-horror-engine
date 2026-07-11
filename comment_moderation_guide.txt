@@ -1,0 +1,85 @@
+YouTube Comment Moderation Guide
+================================
+
+Comment Moderation Settings:
+
+1. Automatic Filters (YouTube Studio → Settings → Community)
+   - Block potentially inappropriate comments: ON
+   - Hold potentially inappropriate comments for review: ON
+   - Block spam: ON
+   - Hide comments from users with hidden history: ON
+
+2. Blocked Words (Spanish & English)
+   Spam:
+   - "subscribe to my channel"
+   - "check out my video"
+   - "free subscribers"
+   - "get more views"
+   - "follow for follow"
+   - "sígueme y te sigo"
+   - "suscríbete a mi canal"
+   
+   Inappropriate:
+   - Profanity and offensive language
+   - Hate speech terms
+   - Personal attacks
+   - Harassment
+
+3. Moderation Levels
+   - Strict: For new channel (protect brand)
+   - Medium: After 1000 subscribers (balance)
+   - Light: After 10000 subscribers (community trust)
+
+Comment Approval Workflow:
+1. Review held comments daily
+2. Approve legitimate horror discussions
+3. Reject spam and inappropriate content
+4. Respond to engaging comments
+5. Pin best comments for visibility
+
+Community Guidelines (Post in channel description):
+"📜 Reglas de la Comunidad:
+- Respeto mutuo entre todos los miembros
+- Sin spam o autopromoción
+- Comentarios relevantes al contenido
+- Disfruten del terror de forma constructiva
+- Los comentarios inapropiados serán eliminados"
+
+Engagement Strategy:
+- Like and reply to thoughtful comments
+- Answer questions about monsters/folklore
+- Thank subscribers for engagement
+- Encourage discussion about stories
+- Pin comments that add value
+
+Comment Response Templates:
+- Positive: "¡Gracias por comentar! ¿Qué te pareció la historia de [monster]?"
+- Question: "¿Te gustaría ver más historias de [monster type]?"
+- Discussion: "Interesante punto de vista. ¿Conoces otras leyendas similares?"
+- Thanks: "¡Gracias por ser parte de nuestra comunidad de terror!"
+
+Moderation Tools:
+- YouTube Studio → Comments
+- Filter by: Held for review, Likely spam
+- Bulk actions: Approve/Reject multiple comments
+- Search: Find specific users or keywords
+
+Crisis Management:
+- If harassment occurs: Block user immediately
+- If spam attack: Enable stricter filters temporarily
+- If controversial discussion: Moderate but allow constructive debate
+- Report serious violations to YouTube
+
+Analytics for Comments:
+- Monitor comment sentiment
+- Track most discussed topics
+- Identify top community members
+- Measure engagement rate
+- Adjust moderation based on data
+
+Best Practices:
+- Be consistent with moderation
+- Respond promptly to comments
+- Don't delete constructive criticism
+- Learn from community feedback
+- Build positive community culture

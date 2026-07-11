@@ -127,7 +127,69 @@ class VideoEngine:
             left = min(max(left, 0), new_width - target_width)
             top = min(max(top, 0), new_height - target_height)
             frame = frame.crop((left, top, left + target_width, top + target_height))
+            
+            # Add watermark if enabled
+            if hasattr(self.config, 'watermark') and self.config.watermark.enabled:
+                frame = self._add_watermark(frame)
+                
             return np.array(frame)
 
         clip = mp.VideoClip(frame_function=frame_function, duration=duration)
         return clip.with_fps(self.config.video.fps)
+
+    def _add_watermark(self, frame: Image.Image) -> Image.Image:
+        """Add watermark to frame."""
+        from PIL import ImageDraw, ImageFont
+        
+        try:
+            draw = ImageDraw.Draw(frame)
+            
+            # Watermark settings
+            position = getattr(self.config.watermark, 'position', 'bottom_right')
+            opacity = getattr(self.config.watermark, 'opacity', 0.7)
+            size_ratio = getattr(self.config.watermark, 'size', 0.08)
+            
+            # Calculate watermark size
+            frame_width, frame_height = frame.size
+            watermark_size = int(min(frame_width, frame_height) * size_ratio)
+            
+            # Simple text watermark
+            text = "Cuentos de Terror Eslavo"
+            
+            # Try to use a font
+            try:
+                font = ImageFont.truetype("/System/Library/Fonts/Helvetica.ttc", int(watermark_size / 4))
+            except:
+                font = ImageFont.load_default()
+            
+            # Calculate position
+            bbox = draw.textbbox((0, 0), text, font=font)
+            text_width = bbox[2] - bbox[0]
+            text_height = bbox[3] - bbox[1]
+            
+            margin = 20
+            if position == 'bottom_right':
+                x = frame_width - text_width - margin
+                y = frame_height - text_height - margin
+            elif position == 'bottom_left':
+                x = margin
+                y = frame_height - text_height - margin
+            elif position == 'top_right':
+                x = frame_width - text_width - margin
+                y = margin
+            else:  # top_left
+                x = margin
+                y = margin
+            
+            # Create semi-transparent text
+            watermark_color = (255, 255, 255, int(255 * opacity))
+            
+            # Draw shadow
+            draw.text((x + 2, y + 2), text, font=font, fill=(0, 0, 0, int(255 * opacity)))
+            # Draw text
+            draw.text((x, y), text, font=font, fill=watermark_color)
+            
+        except Exception as e:
+            self.logger.warning(f"Error adding watermark: {e}")
+        
+        return frame
