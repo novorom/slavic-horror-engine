@@ -16,6 +16,7 @@ from core.models.assets import RenderResult, SceneAssets
 from core.providers.edge_tts_provider import EdgeTTSProvider
 from core.providers.gemini_provider import GeminiStoryProvider
 from core.providers.pollinations_provider import PollinationsImageProvider
+from core.providers.gtts_provider import GTTSProvider
 
 
 class SlavicHorrorPipeline:
@@ -24,7 +25,14 @@ class SlavicHorrorPipeline:
         self.logger = logger
         self.story_engine = StoryEngine(config, GeminiStoryProvider(config, logger), logger)
         self.image_engine = ImageEngine(config, PollinationsImageProvider(config, logger), logger)
-        self.audio_engine = AudioEngine(config, EdgeTTSProvider(config, logger), logger)
+        
+        # Select TTS provider based on settings
+        if config.providers.tts == "gtts":
+            tts_provider = GTTSProvider(config, logger)
+        else:
+            tts_provider = EdgeTTSProvider(config, logger)
+        
+        self.audio_engine = AudioEngine(config, tts_provider, logger)
         self.sound_engine = SoundEngine(config, logger)
         self.subtitle_engine = SubtitleEngine(config, logger)
         self.video_engine = VideoEngine(config, CameraEngine(), logger)

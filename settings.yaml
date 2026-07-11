@@ -14,7 +14,7 @@ paths:
 providers:
   story: "gemini"
   image: "pollinations"
-  tts: "edge"
+  tts: "gtts"
 
 gemini:
   model: "gemini-2.5-flash"
