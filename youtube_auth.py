@@ -22,15 +22,21 @@ def get_refresh_token(credentials_path: str) -> str:
     """Get refresh token from OAuth credentials."""
     flow = InstalledAppFlow.from_client_secrets_file(credentials_path, SCOPES)
     
-    # Run local server for callback
-    credentials = flow.run_local_server(
-        port=8080,
-        prompt="consent",
-        authorization_prompt_message="Please visit this URL to authorize this application: {url}",
-        success_message="Authorization successful! You can close this window.",
-    )
-    
-    return credentials.refresh_token
+    # Run local server for callback (try different ports)
+    for port in [8080, 8081, 8082, 8083, 8084]:
+        try:
+            credentials = flow.run_local_server(
+                port=port,
+                prompt="consent",
+                authorization_prompt_message="Please visit this URL to authorize this application: {url}",
+                success_message="Authorization successful! You can close this window.",
+            )
+            return credentials.refresh_token
+        except OSError as e:
+            if "Address already in use" in str(e):
+                continue
+            raise
+    raise Exception("Could not find available port for OAuth callback")
 
 
 def main():
