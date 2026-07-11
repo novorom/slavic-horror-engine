@@ -11,6 +11,13 @@ def cover_resize(image: Image.Image, target_size: tuple[int, int]) -> Image.Imag
     target_ratio = target_width / target_height
     image_ratio = image.width / image.height
 
+    # Allow small tolerance for aspect ratio differences
+    tolerance = 0.05
+    
+    if abs(image_ratio - target_ratio) < tolerance:
+        # Close enough, just resize
+        return image.resize(target_size, Image.Resampling.LANCZOS)
+    
     if image_ratio > target_ratio:
         new_width = int(image.height * target_ratio)
         left = max((image.width - new_width) // 2, 0)
