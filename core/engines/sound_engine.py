@@ -164,20 +164,22 @@ class SoundEngine:
         seed = int(hashlib.sha256(f"stinger:{scene_index}:{text}".encode("utf-8")).hexdigest()[:8], 16)
         rng = np.random.default_rng(seed)
 
-        rise = np.linspace(380.0, 1320.0, frames)
+        # Enhanced scream for final scene
+        rise = np.linspace(320.0, 1800.0, frames)
         scream = (
-            0.54 * np.sin(2 * math.pi * rise * t)
-            + 0.21 * np.sin(2 * math.pi * (rise * 1.97) * t)
-            + 0.30 * rng.normal(size=frames)
+            0.62 * np.sin(2 * math.pi * rise * t)
+            + 0.28 * np.sin(2 * math.pi * (rise * 2.1) * t)
+            + 0.35 * np.sin(2 * math.pi * (rise * 0.5) * t)
+            + 0.32 * rng.normal(size=frames)
         )
-        tremor = 0.65 + 0.35 * np.sin(2 * math.pi * 9.5 * t)
+        tremor = 0.55 + 0.45 * np.sin(2 * math.pi * 12.0 * t)
         impact = np.zeros(frames, dtype=np.float32)
-        impact_start = max(frames - int(sample_rate * min(dur, 0.38)), 0)
+        impact_start = max(frames - int(sample_rate * min(dur, 0.42)), 0)
         if impact_start < frames:
             impact[impact_start:] = np.linspace(0.0, 1.0, frames - impact_start)
-        envelope = self._fade_envelope(dur, sample_rate, fade_in=0.015, fade_out=0.95)
+        envelope = self._fade_envelope(dur, sample_rate, fade_in=0.02, fade_out=0.92)
         samples = scream * tremor * impact * envelope * self.config.audio.final_stinger_volume
-        samples += 0.06 * rng.normal(size=frames) * envelope
+        samples += 0.08 * rng.normal(size=frames) * envelope
         self._write_pcm_wav(output_path, samples, sample_rate)
 
     def _fade_envelope(self, duration: float, sample_rate: int, fade_in: float, fade_out: float) -> np.ndarray:
@@ -224,6 +226,13 @@ class SoundEngine:
             "bone_rattle",
             "breath_rush",
             "black_drift",
+            "wood_creak",
+            "metal_scrape",
+            "sub_boom",
+            "reverse_swell",
+            "bone_knock",
+            "bell_dread",
+            "breath_snap",
         ]
         if scene_index <= 0:
             scene_index = 1
