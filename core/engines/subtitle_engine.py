@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import logging
 from pathlib import Path
 
@@ -18,6 +19,14 @@ class SubtitleEngine:
         self.subtitle_dir.mkdir(parents=True, exist_ok=True)
 
     def burn(self, image_path: Path, text: str, index: int) -> Path:
+        # Create unique filename based on text content to avoid cache conflicts
+        text_hash = hashlib.md5(text.encode("utf-8")).hexdigest()[:8]
+        output = self.subtitle_dir / f"scene_{index:02}_{text_hash}.jpg"
+        
+        # Return cached version if exists
+        if output.exists():
+            return output
+            
         image = Image.open(image_path).convert("RGBA")
         if image.size != self.config.video.size:
             image = cover_resize(image.convert("RGB"), self.config.video.size).convert("RGBA")
@@ -58,7 +67,6 @@ class SubtitleEngine:
                 stroke_width=self.config.subtitles.stroke_width,
             )
 
-        output = self.subtitle_dir / f"scene_{index:02}.jpg"
         image.convert("RGB").save(output, quality=95, optimize=True)
         return output
 
