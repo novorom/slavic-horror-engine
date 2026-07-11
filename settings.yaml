@@ -98,7 +98,7 @@ audio:
   final_stinger_volume: 0.42
   ambient_base_hz: 43.0
   voice_volume: 1.0
-  fallback_silence: false
+  fallback_silence: true
 
 subtitles:
   font_file: ""
