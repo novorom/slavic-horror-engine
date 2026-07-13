@@ -233,6 +233,25 @@ class SoundEngine:
             "bone_knock",
             "bell_dread",
             "breath_snap",
+            "blood_drip",
+            "ghost_whisper",
+            "heart_beat",
+            "wind_howl",
+            "thunder_crack",
+            "door_slam",
+            "glass_break",
+            "footsteps",
+            "breathing_heavy",
+            "scream_long",
+            "whisper_chant",
+            "splash_water",
+            "rustle_leaves",
+            "owl_hoot",
+            "wolf_howl",
+            "fire_crackle",
+            "ice_crack",
+            "stone_drag",
+            "metal_clang",
         ]
         if scene_index <= 0:
             scene_index = 1
@@ -328,6 +347,153 @@ class SoundEngine:
                 + 0.26 * rng.normal(size=len(t))
                 + 0.20 * np.maximum(0.0, np.sin(2 * math.pi * 5.5 * t))
             )
+        if style == "blood_drip":
+            drip_times = np.linspace(0.1, 0.9, 8)
+            drops = np.zeros_like(t)
+            for drip_time in drip_times:
+                idx = np.abs(t - (t[-1] * drip_time)) < (t[-1] * 0.03)
+                if idx.any():
+                    freq = 180.0 + 40.0 * rng.random()
+                    drops[idx] += 0.45 * np.sin(2 * math.pi * freq * t[idx]) * np.exp(-10.0 * (t[idx] - t[idx][0]))
+            return drops + 0.06 * rng.normal(size=len(t))
+        if style == "ghost_whisper":
+            whisper_freq = np.linspace(400.0, 600.0, len(t))
+            whisper_mod = 0.5 + 0.5 * np.sin(2 * math.pi * 2.5 * t)
+            return (
+                0.28 * np.sin(2 * math.pi * whisper_freq * t) * whisper_mod
+                + 0.18 * rng.normal(size=len(t))
+                + 0.12 * np.sin(2 * math.pi * 120.0 * t)
+            )
+        if style == "heart_beat":
+            beat_times = [0.15, 0.35, 0.55, 0.75, 0.90]
+            beats = np.zeros_like(t)
+            for beat_time in beat_times:
+                idx = np.abs(t - (t[-1] * beat_time)) < (t[-1] * 0.04)
+                if idx.any():
+                    beats[idx] += 0.65 * np.sin(2 * math.pi * 85.0 * t[idx]) * np.exp(-15.0 * (t[idx] - t[idx][0]))
+            return beats + 0.04 * rng.normal(size=len(t))
+        if style == "wind_howl":
+            wind_freq = np.linspace(200.0, 800.0, len(t))
+            wind_mod = 0.3 + 0.7 * np.sin(2 * math.pi * 1.8 * t)
+            return (
+                0.42 * np.sin(2 * math.pi * wind_freq * t) * wind_mod
+                + 0.22 * rng.normal(size=len(t))
+                + 0.15 * np.sin(2 * math.pi * 45.0 * t)
+            )
+        if style == "thunder_crack":
+            crack = np.zeros_like(t)
+            crack[t > t[-1] * 0.3] = 0.8
+            crack[t > t[-1] * 0.35] = 0.4
+            return (
+                0.55 * rng.normal(size=len(t)) * crack
+                + 0.35 * np.sin(2 * math.pi * 60.0 * t) * np.exp(-3.0 * (t / max(t[-1], 0.001)))
+            )
+        if style == "door_slam":
+            slam_time = 0.6
+            slam_idx = np.abs(t - (t[-1] * slam_time)) < (t[-1] * 0.05)
+            slam = np.zeros_like(t)
+            if slam_idx.any():
+                slam[slam_idx] += 0.75 * np.sin(2 * math.pi * 120.0 * t[slam_idx]) * np.exp(-8.0 * (t[slam_idx] - t[slam_idx][0]))
+            return slam + 0.08 * rng.normal(size=len(t))
+        if style == "glass_break":
+            glass_times = [0.25, 0.45, 0.65]
+            glass = np.zeros_like(t)
+            for glass_time in glass_times:
+                idx = np.abs(t - (t[-1] * glass_time)) < (t[-1] * 0.02)
+                if idx.any():
+                    freq = 2000.0 + 500.0 * rng.random()
+                    glass[idx] += 0.55 * np.sin(2 * math.pi * freq * t[idx]) * np.exp(-20.0 * (t[idx] - t[idx][0]))
+            return glass + 0.1 * rng.normal(size=len(t))
+        if style == "footsteps":
+            step_times = [0.1, 0.25, 0.4, 0.55, 0.7, 0.85]
+            steps = np.zeros_like(t)
+            for step_time in step_times:
+                idx = np.abs(t - (t[-1] * step_time)) < (t[-1] * 0.025)
+                if idx.any():
+                    steps[idx] += 0.4 * np.sin(2 * math.pi * 150.0 * t[idx]) * np.exp(-12.0 * (t[idx] - t[idx][0]))
+            return steps + 0.05 * rng.normal(size=len(t))
+        if style == "breathing_heavy":
+            inhale = np.maximum(0.0, np.sin(2 * math.pi * 0.5 * t))
+            exhale = np.maximum(0.0, np.sin(2 * math.pi * 1.0 * t + 0.5))
+            hiss = 0.15 * rng.normal(size=len(t))
+            return 0.35 * inhale + 0.25 * exhale + hiss
+        if style == "scream_long":
+            sweep = np.linspace(400.0, 1200.0, len(t))
+            scream_env = np.concatenate([np.linspace(0.0, 1.0, len(t) // 3), np.ones(len(t) // 3), np.linspace(1.0, 0.0, len(t) - 2 * len(t) // 3)])
+            return (
+                (0.45 * np.sin(2 * math.pi * sweep * t) + 0.25 * np.sin(2 * math.pi * (sweep * 1.5) * t))
+                * scream_env
+                + 0.18 * rng.normal(size=len(t))
+            )
+        if style == "whisper_chant":
+            chant_freq = np.linspace(300.0, 500.0, len(t))
+            chant_mod = 0.4 + 0.6 * np.sin(2 * math.pi * 3.0 * t)
+            return (
+                0.32 * np.sin(2 * math.pi * chant_freq * t) * chant_mod
+                + 0.18 * np.sin(2 * math.pi * 150.0 * t)
+                + 0.12 * rng.normal(size=len(t))
+            )
+        if style == "splash_water":
+            splash = np.zeros_like(t)
+            splash[t > t[-1] * 0.4] = 1.0
+            splash = splash * np.exp(-2.5 * (t / max(t[-1], 0.001)))
+            water = 0.38 * np.sin(2 * math.pi * 80.0 * t) + 0.25 * np.sin(2 * math.pi * 150.0 * t)
+            bubbles = 0.18 * rng.normal(size=len(t))
+            return (water + bubbles) * splash
+        if style == "rustle_leaves":
+            rustle_freq = np.linspace(400.0, 800.0, len(t))
+            rustle_mod = 0.5 + 0.5 * np.sin(2 * math.pi * 4.0 * t)
+            return (
+                0.35 * np.sin(2 * math.pi * rustle_freq * t) * rustle_mod
+                + 0.22 * rng.normal(size=len(t))
+                + 0.15 * np.sin(2 * math.pi * 200.0 * t)
+            )
+        if style == "owl_hoot":
+            hoot_times = [0.2, 0.6]
+            hoots = np.zeros_like(t)
+            for hoot_time in hoot_times:
+                idx = np.abs(t - (t[-1] * hoot_time)) < (t[-1] * 0.08)
+                if idx.any():
+                    hoot_freq = 400.0 + 50.0 * rng.random()
+                    hoots[idx] += 0.5 * np.sin(2 * math.pi * hoot_freq * t[idx]) * np.exp(-5.0 * (t[idx] - t[idx][0]))
+            return hoots + 0.08 * rng.normal(size=len(t))
+        if style == "wolf_howl":
+            howl_freq = np.linspace(300.0, 600.0, len(t))
+            howl_env = np.concatenate([np.linspace(0.0, 1.0, len(t) // 4), np.ones(len(t) // 2), np.linspace(1.0, 0.0, len(t) - 3 * len(t) // 4)])
+            return (
+                0.48 * np.sin(2 * math.pi * howl_freq * t) * howl_env
+                + 0.22 * np.sin(2 * math.pi * (howl_freq * 1.3) * t) * howl_env
+                + 0.15 * rng.normal(size=len(t))
+            )
+        if style == "fire_crackle":
+            crackle_times = np.linspace(0.1, 0.9, 15)
+            crackles = np.zeros_like(t)
+            for crackle_time in crackle_times:
+                idx = np.abs(t - (t[-1] * crackle_time)) < (t[-1] * 0.015)
+                if idx.any():
+                    freq = 800.0 + 400.0 * rng.random()
+                    crackles[idx] += 0.35 * np.sin(2 * math.pi * freq * t[idx]) * np.exp(-25.0 * (t[idx] - t[idx][0]))
+            return crackles + 0.12 * rng.normal(size=len(t))
+        if style == "ice_crack":
+            crack = np.zeros_like(t)
+            crack[t > t[-1] * 0.5] = 1.0
+            crack = crack * np.exp(-4.0 * (t / max(t[-1], 0.001)))
+            ice = 0.55 * np.sin(2 * math.pi * 2000.0 * t) + 0.35 * np.sin(2 * math.pi * 1500.0 * t)
+            return ice * crack + 0.08 * rng.normal(size=len(t))
+        if style == "stone_drag":
+            drag_freq = np.linspace(100.0, 200.0, len(t))
+            grind = 0.38 * np.sin(2 * math.pi * drag_freq * t) + 0.22 * rng.normal(size=len(t))
+            scrape = 0.28 * np.sin(2 * math.pi * 400.0 * t) * np.linspace(0.0, 1.0, len(t))
+            return grind + scrape
+        if style == "metal_clang":
+            clang_times = [0.3, 0.7]
+            clangs = np.zeros_like(t)
+            for clang_time in clang_times:
+                idx = np.abs(t - (t[-1] * clang_time)) < (t[-1] * 0.03)
+                if idx.any():
+                    clang_freq = 800.0 + 200.0 * rng.random()
+                    clangs[idx] += 0.65 * np.sin(2 * math.pi * clang_freq * t[idx]) * np.exp(-10.0 * (t[idx] - t[idx][0]))
+            return clangs + 0.08 * rng.normal(size=len(t))
         return 0.25 * rng.normal(size=len(t))
 
     def _scene_needs_whisper(self, text: str, scene_index: int) -> bool:

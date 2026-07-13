@@ -112,8 +112,11 @@ class SlavicHorrorPipeline:
         )
         
         # Regular scenes (indices 1-8)
+        # image_paths now includes: [hook_image, scene1, scene2, ..., sceneN, final_portrait]
+        # audio_paths includes: [hook_audio, scene1_audio, ..., sceneN_audio, ending_question_audio]
+        regular_image_count = len(image_paths) - 2  # Exclude hook and final portrait
         for scene_index, (scene, image_path, audio_path) in enumerate(
-            zip(story.scenes, image_paths[1:], audio_paths[1:len(story.scenes)+1]), start=1
+            zip(story.scenes, image_paths[1:regular_image_count+1], audio_paths[1:len(story.scenes)+1]), start=1
         ):
             duration = self.video_engine.audio_duration(audio_path)
             durations.append(duration)
@@ -138,7 +141,7 @@ class SlavicHorrorPipeline:
         
         # Final question scene (index 9)
         final_audio = audio_paths[-1]
-        final_image = image_paths[-1]
+        final_image = image_paths[-1]  # This is now the monster portrait with name
         final_duration = self.video_engine.audio_duration(final_audio)
         durations.append(final_duration)
         ambient_path, accent_path, whisper_path = self.sound_engine.prepare_scene_layers(

@@ -39,28 +39,41 @@ class VideoEngine:
             audio_clips.append(audio)
             duration = max(float(audio.duration or asset.duration), 1.0)
             audio_layers = [audio]
+            
+            # Calculate total sound duration after voice ends
+            sound_delay = 0.0
+            
             if asset.ambient_path:
                 ambient = mp.AudioFileClip(str(asset.ambient_path))
-                audio_layers.append(ambient)
+                ambient_duration = float(ambient.duration or 0.0)
+                audio_layers.append(ambient.with_start(duration))
                 audio_clips.append(ambient)
+                sound_delay = max(sound_delay, ambient_duration)
             else:
                 ambient = None
+            
             if asset.accent_path:
-                accent = mp.AudioFileClip(str(asset.accent_path)).with_start(max(duration - self.config.audio.accent_tail_seconds, 0.0))
-                audio_layers.append(accent)
+                accent = mp.AudioFileClip(str(asset.accent_path))
+                accent_duration = float(accent.duration or 0.0)
+                audio_layers.append(accent.with_start(duration))
                 audio_clips.append(accent)
+                sound_delay = max(sound_delay, accent_duration)
             else:
                 accent = None
+            
             if asset.whisper_path:
-                whisper = mp.AudioFileClip(str(asset.whisper_path)).with_start(max(duration - self.config.audio.whisper_tail_seconds, 0.0))
-                audio_layers.append(whisper)
+                whisper = mp.AudioFileClip(str(asset.whisper_path))
+                whisper_duration = float(whisper.duration or 0.0)
+                audio_layers.append(whisper.with_start(duration))
                 audio_clips.append(whisper)
+                sound_delay = max(sound_delay, whisper_duration)
             else:
                 whisper = None
-            clip_duration = duration
+            
+            clip_duration = duration + sound_delay
             if asset.stinger_path:
                 stinger = mp.AudioFileClip(str(asset.stinger_path))
-                stinger_start = duration + self.config.audio.final_stinger_gap_seconds
+                stinger_start = clip_duration + self.config.audio.final_stinger_gap_seconds
                 audio_layers.append(stinger.with_start(stinger_start))
                 audio_clips.append(stinger)
                 clip_duration = max(clip_duration, stinger_start + float(stinger.duration or self.config.audio.final_stinger_tail_seconds))

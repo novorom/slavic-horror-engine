@@ -3,6 +3,45 @@ prompts.py
 Slavic Horror Engine v2
 """
 
+from monsters_database import get_monster_info, get_rotated_legends
+import json
+import os
+
+CYCLE_TRACKER_FILE = "cycle_tracker.json"
+
+def load_cycle_tracker():
+    """Load cycle tracker from file."""
+    if os.path.exists(CYCLE_TRACKER_FILE):
+        try:
+            with open(CYCLE_TRACKER_FILE, 'r') as f:
+                return json.load(f)
+        except:
+            pass
+    return {"current_cycle": 0, "current_monster_index": 0}
+
+def save_cycle_tracker(tracker):
+    """Save cycle tracker to file."""
+    with open(CYCLE_TRACKER_FILE, 'w') as f:
+        json.dump(tracker, f, indent=2)
+
+def get_current_monster(monsters_list):
+    """Get current monster from list based on tracker."""
+    tracker = load_cycle_tracker()
+    
+    if tracker["current_monster_index"] >= len(monsters_list):
+        # Start new cycle
+        tracker["current_cycle"] += 1
+        tracker["current_monster_index"] = 0
+        save_cycle_tracker(tracker)
+    
+    monster_name = monsters_list[tracker["current_monster_index"]]
+    
+    # Move to next monster for next time
+    tracker["current_monster_index"] += 1
+    save_cycle_tracker(tracker)
+    
+    return monster_name, tracker["current_cycle"]
+
 SYSTEM_PROMPT = """
 Ты профессиональный сценарист вирусных коротких хоррор-видео.
 
@@ -11,7 +50,7 @@ SYSTEM_PROMPT = """
 Твоя задача —
 максимальное удержание аудитории.
 
-История должна быть похожа на настоящий случай.
+ история должна быть похожа на настоящий случай.
 
 Не объясняй.
 
@@ -22,11 +61,31 @@ SYSTEM_PROMPT = """
 Каждая фраза должна вызывать желание досмотреть дальше.
 """
 
-STORY_PROMPT = """
+def get_story_prompt(monster_name, cycle_number=0):
+    """Generate story prompt with monster-specific lore."""
+    monster_info = get_monster_info(monster_name)
+    
+    # Get rotated legends based on cycle number
+    legends = get_rotated_legends(monster_name, cycle_number)
+    legends_text = "\n".join([f"- {legend}" for legend in legends])
+    
+    behavior_text = monster_info["behavior"]
+    description_text = monster_info["description"]
+    
+    return f"""
 Создай вирусную историю для Shorts/TikTok/Reels.
 
-Тема:
-{monster}
+Тема (монстр из славянской мифологии):
+{monster_name}
+
+Описание монстра:
+{description_text}
+
+Поведение:
+{behavior_text}
+
+Известные легенды (используй как вдохновение):
+{legends_text}
 
 Формат:
 
@@ -49,9 +108,13 @@ ENDING QUESTION
 • каждый новый кадр усиливает страх
 • финал остается открытым
 • последний кадр — вопрос зрителю
+• ИСПОЛЬЗУЙ легенды выше как основу для сюжета
+• История должна ощущаться как реальная городская легенда
 
-История должна ощущаться как реальная городская легенда.
+Важно: Создай ОРИГИНАЛЬНУЮ историю на основе этих легенд, не просто пересказывай их.
 """
+
+STORY_PROMPT = get_story_prompt  # Function that takes monster_name and cycle_number
 
 IMAGE_PROMPT = """
 Ultra realistic horror movie still.
@@ -105,6 +168,22 @@ no text
 no watermark
 
 no logo
+
+atmospheric horror
+
+night scene
+
+moonlight
+
+shadows
+
+mysterious
+
+ancient slavic setting
+
+folk horror
+
+dark fantasy
 """
 
 THUMBNAIL_PROMPT = """
@@ -137,9 +216,11 @@ YOUTUBE_TITLE_PROMPT = """
 
 Максимум 60 символов.
 
-Используй любопытство.
+Используй любопытство и страх.
 
 Без кликбейта.
+
+Используй слова: leyenda, terror, bosque, criatura.
 
 История:
 
@@ -153,9 +234,10 @@ YOUTUBE_DESCRIPTION_PROMPT = """
 
 испанский.
 
-Добавь призыв к комментарию.
-
-Добавь естественные ключевые слова.
+Структура:
+1. Краткое описание истории (2-3 предложения)
+2. Призыв к комментарию
+3. Ключевые слова: leyendas eslavas, terror, folklore, criaturas mitológicas, bosque, misterio
 
 История:
 
