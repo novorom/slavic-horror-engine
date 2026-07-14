@@ -60,13 +60,14 @@ def upload_to_cloudinary(video_path: str) -> str:
         return None
 
 
-def publish_to_social_media(video_url: str, caption: str, hashtags: list[str]) -> dict:
+def publish_to_social_media(video_url: str, tiktok_caption: str, instagram_caption: str, hashtags: list[str]) -> dict:
     """
     Publish video to Instagram and TikTok using BulkPublish API
     
     Args:
         video_url: Public URL of video
-        caption: Caption for the post
+        tiktok_caption: Caption for TikTok
+        instagram_caption: Caption for Instagram
         hashtags: List of hashtags
     
     Returns:
@@ -76,16 +77,27 @@ def publish_to_social_media(video_url: str, caption: str, hashtags: list[str]) -
         print("ERROR: BULKPUBLISH_API_KEY not set")
         return {"error": "API key not set"}
     
-    # Prepare caption with hashtags
-    full_caption = f"{caption}\n\n{' '.join(hashtags)}"
+    # Prepare captions with hashtags
+    tiktok_full = f"{tiktok_caption}\n\n{' '.join(hashtags)}"
+    instagram_full = f"{instagram_caption}\n\n{' '.join(hashtags)}"
     
-    # Only publish to TikTok (Instagram not connected yet)
+    # Publish to both platforms (Instagram not connected yet, but ready)
     payload = {
-        "platforms": ["tiktok"],
+        "platforms": ["tiktok"],  # Add "instagram" when connected
         "mediaUrl": video_url,
-        "caption": full_caption,
+        "caption": tiktok_full,
         "postTypeOverrides": {
-            "tiktok": "video"
+            "tiktok": "video",
+            "instagram": "reel"
+        },
+        # Platform-specific captions
+        "platformOverrides": {
+            "tiktok": {
+                "caption": tiktok_full
+            },
+            "instagram": {
+                "caption": instagram_full
+            }
         }
     }
     
@@ -111,10 +123,18 @@ if __name__ == "__main__":
         print("ERROR: output directory not found")
         exit(1)
     
-    # Read Instagram caption (use for TikTok too)
+    # Read TikTok caption
+    tiktok_file = output_dir / "tiktok.txt"
+    if tiktok_file.exists():
+        tiktok_caption = tiktok_file.read_text(encoding="utf-8").strip()
+    else:
+        print("ERROR: tiktok.txt not found")
+        exit(1)
+    
+    # Read Instagram caption
     instagram_file = output_dir / "instagram.txt"
     if instagram_file.exists():
-        caption = instagram_file.read_text(encoding="utf-8").strip()
+        instagram_caption = instagram_file.read_text(encoding="utf-8").strip()
     else:
         print("ERROR: instagram.txt not found")
         exit(1)
@@ -145,5 +165,5 @@ if __name__ == "__main__":
     
     # Publish to social media
     print("Publishing to TikTok...")
-    result = publish_to_social_media(video_url, caption, hashtags)
+    result = publish_to_social_media(video_url, tiktok_caption, instagram_caption, hashtags)
     print(f"Publish result: {json.dumps(result, indent=2)}")
