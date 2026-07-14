@@ -2,8 +2,8 @@ name: Daily Horror Reel Upload
 
 on:
   schedule:
-    # Run every day at 8 PM UTC (adjust timezone as needed)
-    - cron: '0 20 * * *'
+    # Run every day at 9 PM Madrid time (7 PM UTC in summer, 8 PM UTC in winter)
+    - cron: '0 19 * * *'
   workflow_dispatch: # Allow manual trigger
 
 jobs:
