@@ -56,7 +56,7 @@ class ImageEngine:
                 except:
                     font = ImageFont.load_default()
             
-            # Calculate text position (top center)
+            # Calculate text position (center)
             text = story.monster.upper()
             bbox = draw.textbbox((0, 0), text, font=font)
             text_width = bbox[2] - bbox[0]
@@ -64,7 +64,7 @@ class ImageEngine:
             
             width, height = img.size
             x = (width - text_width) // 2
-            y = 50  # 50px from top
+            y = (height - text_height) // 2
             
             # Add text shadow
             draw.text((x + 3, y + 3), text, font=font, fill=(0, 0, 0, 255))
