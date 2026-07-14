@@ -49,3 +49,12 @@ jobs:
             output/video.mp4 \
             "$TITLE" \
             "$DESCRIPTION"
+      
+      - name: Publish to Instagram and TikTok
+        env:
+          BULKPUBLISH_API_KEY: ${{ secrets.BULKPUBLISH_API_KEY }}
+        run: |
+          # Note: This requires video to be hosted on cloud storage
+          # For now, this is a placeholder - you need to set up cloud storage
+          # and update social_publisher.py with the upload logic
+          python social_publisher.py
