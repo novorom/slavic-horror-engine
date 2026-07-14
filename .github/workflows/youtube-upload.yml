@@ -53,8 +53,8 @@ jobs:
       - name: Publish to Instagram and TikTok
         env:
           BULKPUBLISH_API_KEY: ${{ secrets.BULKPUBLISH_API_KEY }}
+          CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
+          CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
+          CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
         run: |
-          # Note: This requires video to be hosted on cloud storage
-          # For now, this is a placeholder - you need to set up cloud storage
-          # and update social_publisher.py with the upload logic
           python social_publisher.py
