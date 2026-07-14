@@ -261,7 +261,13 @@ class SoundEngine:
         if style == "wood_creak":
             base = 150.0 - scene_index * 4.0
             sweep = np.linspace(1.0, 0.45, len(t))
-            return 0.52 * np.sin(2 * math.pi * base * sweep * t) + 0.12 * rng.normal(size=len(t))
+            # More realistic wood creak with multiple harmonics and irregular timing
+            creak = 0.52 * np.sin(2 * math.pi * base * sweep * t)
+            creak += 0.28 * np.sin(2 * math.pi * (base * 1.5) * sweep * t)
+            creak += 0.18 * np.sin(2 * math.pi * (base * 2.3) * sweep * t)
+            # Add irregular friction sounds
+            friction = 0.15 * rng.normal(size=len(t)) * np.abs(np.sin(2 * math.pi * 8.0 * t))
+            return creak + friction
         if style == "ghoul_laugh":
             bursts = np.zeros_like(t)
             centers = [0.12, 0.28, 0.48, 0.69, 0.86]
@@ -270,48 +276,94 @@ class SoundEngine:
                 idx = np.abs(t - (t[-1] * center)) < width
                 if idx.any():
                     tone = 210.0 + 48.0 * (i % 2)
+                    # More complex laugh with harmonics
                     bursts[idx] += 0.34 * np.sin(2 * math.pi * tone * t[idx])
                     bursts[idx] += 0.18 * np.sin(2 * math.pi * (tone * 1.9) * t[idx])
+                    bursts[idx] += 0.12 * np.sin(2 * math.pi * (tone * 2.8) * t[idx])
+                    # Add breathy quality
+                    bursts[idx] += 0.08 * rng.normal(size=np.sum(idx))
             return bursts + 0.08 * rng.normal(size=len(t))
         if style == "water_plunge":
             drop = np.exp(-2.2 * (t / max(t[-1], 0.001)))
+            # More realistic water splash with multiple frequencies
             splash = 0.30 * np.sin(2 * math.pi * 36.0 * t) + 0.22 * np.sin(2 * math.pi * 71.0 * t)
+            splash += 0.15 * np.sin(2 * math.pi * 120.0 * t) + 0.10 * np.sin(2 * math.pi * 180.0 * t)
+            # Add bubble sounds with varying sizes
             bubbles = 0.18 * rng.normal(size=len(t))
-            return (splash + bubbles) * drop
+            bubble_pop = np.zeros_like(t)
+            for pop_time in [0.15, 0.35, 0.55, 0.75]:
+                idx = np.abs(t - (t[-1] * pop_time)) < (t[-1] * 0.02)
+                if idx.any():
+                    bubble_pop[idx] += 0.25 * np.sin(2 * math.pi * (400.0 + 100.0 * rng.random()) * t[idx])
+            return (splash + bubbles + bubble_pop) * drop
         if style == "night_scream":
             sweep = np.linspace(180.0, 980.0, len(t))
             body = 0.44 * np.sin(2 * math.pi * sweep * t)
             edge = 0.25 * np.sin(2 * math.pi * (sweep * 1.55) * t)
-            return (body + edge + 0.16 * rng.normal(size=len(t))) * np.linspace(0.12, 1.0, len(t))
+            # Add vocal texture
+            throat = 0.18 * np.sin(2 * math.pi * (sweep * 0.7) * t)
+            # Add tremolo
+            tremolo = 1.0 + 0.3 * np.sin(2 * math.pi * 8.0 * t)
+            return (body + edge + throat + 0.16 * rng.normal(size=len(t))) * np.linspace(0.12, 1.0, len(t)) * tremolo
         if style == "chain_drag":
+            # More realistic chain with rattling links
             grit = 0.28 * rng.normal(size=len(t))
             scrape = 0.26 * np.sin(2 * math.pi * (290.0 - 120.0 * (t / max(t[-1], 0.001))) * t)
             metallic = 0.16 * np.sin(2 * math.pi * 920.0 * t)
-            return grit + scrape + metallic
+            # Add link rattling
+            rattle = np.zeros_like(t)
+            for rattle_time in [0.1, 0.25, 0.4, 0.55, 0.7, 0.85]:
+                idx = np.abs(t - (t[-1] * rattle_time)) < (t[-1] * 0.03)
+                if idx.any():
+                    rattle[idx] += 0.15 * np.sin(2 * math.pi * (800.0 + 200.0 * rng.random()) * t[idx])
+            return grit + scrape + metallic + rattle
         if style == "shriek":
             sweep = np.linspace(720.0, 1600.0, len(t))
-            return (0.34 * np.sin(2 * math.pi * sweep * t) + 0.24 * rng.normal(size=len(t))) * np.linspace(0.2, 1.0, len(t))
+            # Add vocal formants for more realistic scream
+            formant1 = 0.15 * np.sin(2 * math.pi * (sweep * 0.5) * t)
+            formant2 = 0.10 * np.sin(2 * math.pi * (sweep * 0.3) * t)
+            return (0.34 * np.sin(2 * math.pi * sweep * t) + formant1 + formant2 + 0.24 * rng.normal(size=len(t))) * np.linspace(0.2, 1.0, len(t))
         if style == "bone_rattle":
             knocks = np.zeros_like(t)
             hits = (0.18, 0.38, 0.56, 0.74, 0.91)
             for i, center in enumerate(hits):
                 idx = np.abs(t - (t[-1] * center)) < (t[-1] * 0.018)
-                knocks[idx] += 0.66 * np.sin(2 * math.pi * (88.0 - 3.0 * i) * t[idx])
+                if idx.any():
+                    # More realistic bone sounds with multiple frequencies
+                    knocks[idx] += 0.66 * np.sin(2 * math.pi * (88.0 - 3.0 * i) * t[idx])
+                    knocks[idx] += 0.28 * np.sin(2 * math.pi * (176.0 - 6.0 * i) * t[idx])
+                    # Add hollow resonance
+                    knocks[idx] += 0.15 * np.sin(2 * math.pi * (44.0 - 1.5 * i) * t[idx])
             return knocks + 0.06 * rng.normal(size=len(t))
         if style == "breath_rush":
             inhale = np.maximum(0.0, np.sin(2 * math.pi * 0.72 * t))
             exhale = np.maximum(0.0, np.sin(2 * math.pi * 1.35 * t + 0.4))
-            hiss = 0.22 * rng.normal(size=len(t))
-            return 0.32 * inhale + 0.18 * exhale + hiss
+            # Add wind noise texture
+            wind = 0.12 * rng.normal(size=len(t))
+            # Add subtle whistling
+            whistle = 0.08 * np.sin(2 * math.pi * 2000.0 * t) * np.abs(np.sin(2 * math.pi * 3.0 * t))
+            return 0.32 * inhale + 0.18 * exhale + wind + whistle
         if style == "metal_scrape":
             burst = np.zeros_like(t)
             burst[t > t[-1] * 0.15] = 0.45
             burst[t > t[-1] * 0.55] = 0.2
-            return 0.42 * rng.normal(size=len(t)) * burst + 0.18 * np.sin(2 * math.pi * (320 - 140 * (t / max(t[-1], 0.001))) * t)
+            # More realistic metal scrape with harmonics
+            scrape = 0.42 * rng.normal(size=len(t)) * burst
+            scrape += 0.18 * np.sin(2 * math.pi * (320 - 140 * (t / max(t[-1], 0.001))) * t)
+            scrape += 0.12 * np.sin(2 * math.pi * (640 - 280 * (t / max(t[-1], 0.001))) * t)
+            # Add metallic ringing
+            ring = 0.08 * np.sin(2 * math.pi * 1280.0 * t) * np.exp(-5.0 * (t / max(t[-1], 0.001)))
+            return scrape + ring
         if style == "sub_boom":
             freq = 48.0 if not is_final_scene else 30.0
             decay = np.exp(-2.8 * (t / max(t[-1], 0.001)))
-            return (0.7 * np.sin(2 * math.pi * freq * t) + 0.18 * np.sin(2 * math.pi * 2 * freq * t)) * decay
+            # More realistic sub-bass with harmonics
+            boom = 0.7 * np.sin(2 * math.pi * freq * t)
+            boom += 0.18 * np.sin(2 * math.pi * 2 * freq * t)
+            boom += 0.10 * np.sin(2 * math.pi * 3 * freq * t)
+            # Add rumble texture
+            rumble = 0.15 * rng.normal(size=len(t)) * decay
+            return (boom + rumble) * decay
         if style == "reverse_swell":
             reverse_env = np.linspace(0.15, 1.0, len(t))
             return (0.34 * rng.normal(size=len(t)) + 0.22 * np.sin(2 * math.pi * 95.0 * t)) * reverse_env
@@ -319,34 +371,59 @@ class SoundEngine:
             knocks = np.zeros_like(t)
             for center, freq in ((0.22, 92.0), (0.48, 88.0), (0.74, 84.0), (0.92, 80.0)):
                 idx = np.abs(t - (t[-1] * center)) < (t[-1] * 0.022)
-                knocks[idx] += 0.72 * np.sin(2 * math.pi * freq * t[idx])
+                if idx.any():
+                    # More realistic bone knock with harmonics
+                    knocks[idx] += 0.72 * np.sin(2 * math.pi * freq * t[idx])
+                    knocks[idx] += 0.35 * np.sin(2 * math.pi * (freq * 2.1) * t[idx])
+                    # Add hollow resonance
+                    knocks[idx] += 0.18 * np.sin(2 * math.pi * (freq * 0.5) * t[idx])
             return knocks + 0.08 * rng.normal(size=len(t))
         if style == "bell_dread":
+            # More realistic bell with inharmonic partials
             bell = 0.26 * np.sin(2 * math.pi * 610.0 * t) + 0.26 * np.sin(2 * math.pi * 616.0 * t)
+            bell += 0.15 * np.sin(2 * math.pi * 1220.0 * t) + 0.12 * np.sin(2 * math.pi * 1830.0 * t)
+            # Add metallic overtones
+            bell += 0.08 * np.sin(2 * math.pi * 2440.0 * t)
             return bell * np.exp(-1.8 * (t / max(t[-1], 0.001)))
         if style == "breath_snap":
             inhale = np.maximum(0.0, np.sin(2 * math.pi * 0.95 * t))
             gasp = np.maximum(0.0, np.sin(2 * math.pi * 2.9 * t))
-            return 0.34 * inhale + 0.18 * gasp + 0.14 * rng.normal(size=len(t))
+            # Add air rush texture
+            rush = 0.12 * rng.normal(size=len(t)) * np.abs(np.sin(2 * math.pi * 4.0 * t))
+            return 0.34 * inhale + 0.18 * gasp + rush + 0.14 * rng.normal(size=len(t))
         if style == "black_drift":
+            # More atmospheric drift with layered frequencies
             drift = 0.28 * np.sin(2 * math.pi * 28.0 * t) + 0.16 * np.sin(2 * math.pi * 57.0 * t)
-            return drift + 0.1 * rng.normal(size=len(t))
+            drift += 0.10 * np.sin(2 * math.pi * 85.0 * t) + 0.08 * np.sin(2 * math.pi * 113.0 * t)
+            # Add subtle modulation
+            mod = 1.0 + 0.2 * np.sin(2 * math.pi * 0.5 * t)
+            return (drift + 0.1 * rng.normal(size=len(t))) * mod
         if style == "final_abyss":
-            return (
-                0.65 * np.sin(2 * math.pi * 24.0 * t)
-                + 0.24 * np.sin(2 * math.pi * 17.0 * t)
-                + 0.22 * rng.normal(size=len(t))
-                + 0.18 * np.sin(2 * math.pi * (160.0 - 120.0 * (t / max(t[-1], 0.001))) * t)
-                + 0.15 * np.maximum(0.0, np.sin(2 * math.pi * 1.2 * t))
-            )
+            # More complex abyss sound with layered frequencies
+            abyss = 0.65 * np.sin(2 * math.pi * 24.0 * t)
+            abyss += 0.24 * np.sin(2 * math.pi * 17.0 * t)
+            abyss += 0.18 * np.sin(2 * math.pi * 12.0 * t)
+            abyss += 0.12 * np.sin(2 * math.pi * 8.0 * t)
+            # Add descending sweep
+            abyss += 0.18 * np.sin(2 * math.pi * (160.0 - 120.0 * (t / max(t[-1], 0.001))) * t)
+            # Add pulsing
+            pulse = 0.15 * np.maximum(0.0, np.sin(2 * math.pi * 1.2 * t))
+            # Add rumble texture
+            rumble = 0.22 * rng.normal(size=len(t))
+            return abyss + pulse + rumble
         if style == "final_wail":
             sweep = np.linspace(520.0, 140.0, len(t))
-            return (
-                0.58 * np.sin(2 * math.pi * sweep * t)
-                + 0.28 * np.sin(2 * math.pi * (sweep * 1.86) * t)
-                + 0.26 * rng.normal(size=len(t))
-                + 0.20 * np.maximum(0.0, np.sin(2 * math.pi * 5.5 * t))
-            )
+            # More realistic wail with vocal formants
+            wail = 0.58 * np.sin(2 * math.pi * sweep * t)
+            wail += 0.28 * np.sin(2 * math.pi * (sweep * 1.86) * t)
+            wail += 0.15 * np.sin(2 * math.pi * (sweep * 0.7) * t)
+            # Add tremolo
+            tremolo = 1.0 + 0.2 * np.sin(2 * math.pi * 6.0 * t)
+            # Add breath noise
+            breath = 0.26 * rng.normal(size=len(t))
+            # Add pulsing
+            pulse = 0.20 * np.maximum(0.0, np.sin(2 * math.pi * 5.5 * t))
+            return (wail + breath + pulse) * tremolo
         if style == "blood_drip":
             drip_times = np.linspace(0.1, 0.9, 8)
             drops = np.zeros_like(t)
@@ -354,14 +431,23 @@ class SoundEngine:
                 idx = np.abs(t - (t[-1] * drip_time)) < (t[-1] * 0.03)
                 if idx.any():
                     freq = 180.0 + 40.0 * rng.random()
+                    # More realistic drip with harmonics
                     drops[idx] += 0.45 * np.sin(2 * math.pi * freq * t[idx]) * np.exp(-10.0 * (t[idx] - t[idx][0]))
+                    drops[idx] += 0.25 * np.sin(2 * math.pi * (freq * 1.5) * t[idx]) * np.exp(-12.0 * (t[idx] - t[idx][0]))
+                    # Add surface tension pop
+                    drops[idx] += 0.15 * np.sin(2 * math.pi * (freq * 2.0) * t[idx]) * np.exp(-15.0 * (t[idx] - t[idx][0]))
             return drops + 0.06 * rng.normal(size=len(t))
         if style == "ghost_whisper":
             whisper_freq = np.linspace(400.0, 600.0, len(t))
             whisper_mod = 0.5 + 0.5 * np.sin(2 * math.pi * 2.5 * t)
+            # Add breathy texture
+            breath = 0.12 * rng.normal(size=len(t)) * whisper_mod
+            # Add sibilance
+            sibilance = 0.08 * np.sin(2 * math.pi * 4000.0 * t) * np.abs(np.sin(2 * math.pi * 5.0 * t))
             return (
                 0.28 * np.sin(2 * math.pi * whisper_freq * t) * whisper_mod
-                + 0.18 * rng.normal(size=len(t))
+                + breath
+                + sibilance
                 + 0.12 * np.sin(2 * math.pi * 120.0 * t)
             )
         if style == "heart_beat":
@@ -370,30 +456,46 @@ class SoundEngine:
             for beat_time in beat_times:
                 idx = np.abs(t - (t[-1] * beat_time)) < (t[-1] * 0.04)
                 if idx.any():
+                    # More realistic heartbeat with lub-dub pattern
                     beats[idx] += 0.65 * np.sin(2 * math.pi * 85.0 * t[idx]) * np.exp(-15.0 * (t[idx] - t[idx][0]))
+                    beats[idx] += 0.35 * np.sin(2 * math.pi * 100.0 * t[idx]) * np.exp(-12.0 * (t[idx] - t[idx][0]))
+                    # Add valve click
+                    beats[idx] += 0.15 * np.sin(2 * math.pi * 150.0 * t[idx]) * np.exp(-20.0 * (t[idx] - t[idx][0]))
             return beats + 0.04 * rng.normal(size=len(t))
         if style == "wind_howl":
             wind_freq = np.linspace(200.0, 800.0, len(t))
             wind_mod = 0.3 + 0.7 * np.sin(2 * math.pi * 1.8 * t)
+            # Add turbulence
+            turbulence = 0.15 * rng.normal(size=len(t)) * wind_mod
+            # Add whistling overtones
+            whistle = 0.10 * np.sin(2 * math.pi * 1200.0 * t) * np.abs(np.sin(2 * math.pi * 3.0 * t))
             return (
                 0.42 * np.sin(2 * math.pi * wind_freq * t) * wind_mod
-                + 0.22 * rng.normal(size=len(t))
+                + turbulence
+                + whistle
                 + 0.15 * np.sin(2 * math.pi * 45.0 * t)
             )
         if style == "thunder_crack":
             crack = np.zeros_like(t)
             crack[t > t[-1] * 0.3] = 0.8
             crack[t > t[-1] * 0.35] = 0.4
-            return (
-                0.55 * rng.normal(size=len(t)) * crack
-                + 0.35 * np.sin(2 * math.pi * 60.0 * t) * np.exp(-3.0 * (t / max(t[-1], 0.001)))
-            )
+            # More realistic thunder with rumble
+            rumble = 0.55 * rng.normal(size=len(t)) * crack
+            # Add low frequency boom
+            boom = 0.35 * np.sin(2 * math.pi * 60.0 * t) * np.exp(-3.0 * (t / max(t[-1], 0.001)))
+            # Add crackle
+            crackle = 0.20 * np.sin(2 * math.pi * 200.0 * t) * np.exp(-5.0 * (t / max(t[-1], 0.001)))
+            return rumble + boom + crackle
         if style == "door_slam":
             slam_time = 0.6
             slam_idx = np.abs(t - (t[-1] * slam_time)) < (t[-1] * 0.05)
             slam = np.zeros_like(t)
             if slam_idx.any():
+                # More realistic door slam with harmonics
                 slam[slam_idx] += 0.75 * np.sin(2 * math.pi * 120.0 * t[slam_idx]) * np.exp(-8.0 * (t[slam_idx] - t[slam_idx][0]))
+                slam[slam_idx] += 0.35 * np.sin(2 * math.pi * 240.0 * t[slam_idx]) * np.exp(-10.0 * (t[slam_idx] - t[slam_idx][0]))
+                # Add rattle
+                slam[slam_idx] += 0.15 * rng.normal(size=np.sum(slam_idx))
             return slam + 0.08 * rng.normal(size=len(t))
         if style == "glass_break":
             glass_times = [0.25, 0.45, 0.65]
@@ -402,7 +504,10 @@ class SoundEngine:
                 idx = np.abs(t - (t[-1] * glass_time)) < (t[-1] * 0.02)
                 if idx.any():
                     freq = 2000.0 + 500.0 * rng.random()
+                    # More realistic glass with shattering harmonics
                     glass[idx] += 0.55 * np.sin(2 * math.pi * freq * t[idx]) * np.exp(-20.0 * (t[idx] - t[idx][0]))
+                    glass[idx] += 0.30 * np.sin(2 * math.pi * (freq * 1.5) * t[idx]) * np.exp(-25.0 * (t[idx] - t[idx][0]))
+                    glass[idx] += 0.15 * np.sin(2 * math.pi * (freq * 2.0) * t[idx]) * np.exp(-30.0 * (t[idx] - t[idx][0]))
             return glass + 0.1 * rng.normal(size=len(t))
         if style == "footsteps":
             step_times = [0.1, 0.25, 0.4, 0.55, 0.7, 0.85]
@@ -410,42 +515,73 @@ class SoundEngine:
             for step_time in step_times:
                 idx = np.abs(t - (t[-1] * step_time)) < (t[-1] * 0.025)
                 if idx.any():
+                    # More realistic footsteps with heel-strike pattern
                     steps[idx] += 0.4 * np.sin(2 * math.pi * 150.0 * t[idx]) * np.exp(-12.0 * (t[idx] - t[idx][0]))
+                    steps[idx] += 0.20 * np.sin(2 * math.pi * 300.0 * t[idx]) * np.exp(-15.0 * (t[idx] - t[idx][0]))
+                    # Add surface texture
+                    steps[idx] += 0.10 * rng.normal(size=np.sum(idx))
             return steps + 0.05 * rng.normal(size=len(t))
         if style == "breathing_heavy":
             inhale = np.maximum(0.0, np.sin(2 * math.pi * 0.5 * t))
             exhale = np.maximum(0.0, np.sin(2 * math.pi * 1.0 * t + 0.5))
+            # Add chest rattle
+            rattle = 0.08 * np.sin(2 * math.pi * 80.0 * t) * np.abs(np.sin(2 * math.pi * 2.0 * t))
+            # Add wheeze
+            wheeze = 0.12 * np.sin(2 * math.pi * 400.0 * t) * np.abs(np.sin(2 * math.pi * 1.5 * t))
             hiss = 0.15 * rng.normal(size=len(t))
-            return 0.35 * inhale + 0.25 * exhale + hiss
+            return 0.35 * inhale + 0.25 * exhale + rattle + wheeze + hiss
         if style == "scream_long":
             sweep = np.linspace(400.0, 1200.0, len(t))
             scream_env = np.concatenate([np.linspace(0.0, 1.0, len(t) // 3), np.ones(len(t) // 3), np.linspace(1.0, 0.0, len(t) - 2 * len(t) // 3)])
+            # Add vocal formants
+            formant1 = 0.15 * np.sin(2 * math.pi * (sweep * 0.5) * t)
+            formant2 = 0.10 * np.sin(2 * math.pi * (sweep * 0.3) * t)
+            # Add tremolo
+            tremolo = 1.0 + 0.2 * np.sin(2 * math.pi * 8.0 * t)
             return (
-                (0.45 * np.sin(2 * math.pi * sweep * t) + 0.25 * np.sin(2 * math.pi * (sweep * 1.5) * t))
+                (0.45 * np.sin(2 * math.pi * sweep * t) + 0.25 * np.sin(2 * math.pi * (sweep * 1.5) * t) + formant1 + formant2)
                 * scream_env
+                * tremolo
                 + 0.18 * rng.normal(size=len(t))
             )
         if style == "whisper_chant":
             chant_freq = np.linspace(300.0, 500.0, len(t))
             chant_mod = 0.4 + 0.6 * np.sin(2 * math.pi * 3.0 * t)
+            # Add layered voices
+            voice2 = 0.12 * np.sin(2 * math.pi * (chant_freq * 1.2) * t) * chant_mod
+            voice3 = 0.08 * np.sin(2 * math.pi * (chant_freq * 0.8) * t) * chant_mod
+            # Add breath noise
+            breath = 0.10 * rng.normal(size=len(t)) * chant_mod
             return (
                 0.32 * np.sin(2 * math.pi * chant_freq * t) * chant_mod
+                + voice2
+                + voice3
+                + breath
                 + 0.18 * np.sin(2 * math.pi * 150.0 * t)
-                + 0.12 * rng.normal(size=len(t))
             )
         if style == "splash_water":
             splash = np.zeros_like(t)
             splash[t > t[-1] * 0.4] = 1.0
             splash = splash * np.exp(-2.5 * (t / max(t[-1], 0.001)))
+            # More realistic water with multiple frequencies
             water = 0.38 * np.sin(2 * math.pi * 80.0 * t) + 0.25 * np.sin(2 * math.pi * 150.0 * t)
+            water += 0.15 * np.sin(2 * math.pi * 300.0 * t) + 0.10 * np.sin(2 * math.pi * 600.0 * t)
+            # Add bubble sounds
             bubbles = 0.18 * rng.normal(size=len(t))
             return (water + bubbles) * splash
         if style == "rustle_leaves":
             rustle_freq = np.linspace(400.0, 800.0, len(t))
             rustle_mod = 0.5 + 0.5 * np.sin(2 * math.pi * 4.0 * t)
+            # Add crinkle sounds
+            crinkle = np.zeros_like(t)
+            for crinkle_time in [0.15, 0.35, 0.55, 0.75]:
+                idx = np.abs(t - (t[-1] * crinkle_time)) < (t[-1] * 0.03)
+                if idx.any():
+                    crinkle[idx] += 0.20 * np.sin(2 * math.pi * (1200.0 + 300.0 * rng.random()) * t[idx])
             return (
                 0.35 * np.sin(2 * math.pi * rustle_freq * t) * rustle_mod
                 + 0.22 * rng.normal(size=len(t))
+                + crinkle
                 + 0.15 * np.sin(2 * math.pi * 200.0 * t)
             )
         if style == "owl_hoot":
@@ -455,14 +591,23 @@ class SoundEngine:
                 idx = np.abs(t - (t[-1] * hoot_time)) < (t[-1] * 0.08)
                 if idx.any():
                     hoot_freq = 400.0 + 50.0 * rng.random()
+                    # More realistic owl hoot with harmonics
                     hoots[idx] += 0.5 * np.sin(2 * math.pi * hoot_freq * t[idx]) * np.exp(-5.0 * (t[idx] - t[idx][0]))
+                    hoots[idx] += 0.25 * np.sin(2 * math.pi * (hoot_freq * 1.5) * t[idx]) * np.exp(-6.0 * (t[idx] - t[idx][0]))
+                    # Add trill
+                    hoots[idx] += 0.15 * np.sin(2 * math.pi * (hoot_freq * 2.0) * t[idx]) * np.abs(np.sin(2 * math.pi * 15.0 * t[idx]))
             return hoots + 0.08 * rng.normal(size=len(t))
         if style == "wolf_howl":
             howl_freq = np.linspace(300.0, 600.0, len(t))
             howl_env = np.concatenate([np.linspace(0.0, 1.0, len(t) // 4), np.ones(len(t) // 2), np.linspace(1.0, 0.0, len(t) - 3 * len(t) // 4)])
+            # Add vocal formants
+            formant = 0.15 * np.sin(2 * math.pi * (howl_freq * 0.7) * t) * howl_env
+            # Add tremolo
+            tremolo = 1.0 + 0.15 * np.sin(2 * math.pi * 6.0 * t)
             return (
-                0.48 * np.sin(2 * math.pi * howl_freq * t) * howl_env
-                + 0.22 * np.sin(2 * math.pi * (howl_freq * 1.3) * t) * howl_env
+                (0.48 * np.sin(2 * math.pi * howl_freq * t) + 0.22 * np.sin(2 * math.pi * (howl_freq * 1.3) * t) + formant)
+                * howl_env
+                * tremolo
                 + 0.15 * rng.normal(size=len(t))
             )
         if style == "fire_crackle":
@@ -472,19 +617,38 @@ class SoundEngine:
                 idx = np.abs(t - (t[-1] * crackle_time)) < (t[-1] * 0.015)
                 if idx.any():
                     freq = 800.0 + 400.0 * rng.random()
+                    # More realistic crackle with harmonics
                     crackles[idx] += 0.35 * np.sin(2 * math.pi * freq * t[idx]) * np.exp(-25.0 * (t[idx] - t[idx][0]))
-            return crackles + 0.12 * rng.normal(size=len(t))
+                    crackles[idx] += 0.18 * np.sin(2 * math.pi * (freq * 1.5) * t[idx]) * np.exp(-30.0 * (t[idx] - t[idx][0]))
+            # Add continuous hiss
+            hiss = 0.12 * rng.normal(size=len(t))
+            # Add low rumble
+            rumble = 0.08 * np.sin(2 * math.pi * 60.0 * t)
+            return crackles + hiss + rumble
         if style == "ice_crack":
             crack = np.zeros_like(t)
             crack[t > t[-1] * 0.5] = 1.0
             crack = crack * np.exp(-4.0 * (t / max(t[-1], 0.001)))
+            # More realistic ice with high frequency harmonics
             ice = 0.55 * np.sin(2 * math.pi * 2000.0 * t) + 0.35 * np.sin(2 * math.pi * 1500.0 * t)
-            return ice * crack + 0.08 * rng.normal(size=len(t))
+            ice += 0.20 * np.sin(2 * math.pi * 3000.0 * t) + 0.15 * np.sin(2 * math.pi * 4000.0 * t)
+            # Add shattering sounds
+            shatter = np.zeros_like(t)
+            for shatter_time in [0.55, 0.65, 0.75]:
+                idx = np.abs(t - (t[-1] * shatter_time)) < (t[-1] * 0.02)
+                if idx.any():
+                    shatter[idx] += 0.25 * np.sin(2 * math.pi * (5000.0 + 1000.0 * rng.random()) * t[idx])
+            return (ice + shatter) * crack + 0.08 * rng.normal(size=len(t))
         if style == "stone_drag":
             drag_freq = np.linspace(100.0, 200.0, len(t))
+            # More realistic stone with grinding texture
             grind = 0.38 * np.sin(2 * math.pi * drag_freq * t) + 0.22 * rng.normal(size=len(t))
+            grind += 0.15 * np.sin(2 * math.pi * (drag_freq * 1.5) * t)
+            # Add scrape
             scrape = 0.28 * np.sin(2 * math.pi * 400.0 * t) * np.linspace(0.0, 1.0, len(t))
-            return grind + scrape
+            # Add grit
+            grit = 0.12 * rng.normal(size=len(t)) * np.abs(np.sin(2 * math.pi * 5.0 * t))
+            return grind + scrape + grit
         if style == "metal_clang":
             clang_times = [0.3, 0.7]
             clangs = np.zeros_like(t)
@@ -492,7 +656,12 @@ class SoundEngine:
                 idx = np.abs(t - (t[-1] * clang_time)) < (t[-1] * 0.03)
                 if idx.any():
                     clang_freq = 800.0 + 200.0 * rng.random()
+                    # More realistic metal clang with harmonics
                     clangs[idx] += 0.65 * np.sin(2 * math.pi * clang_freq * t[idx]) * np.exp(-10.0 * (t[idx] - t[idx][0]))
+                    clangs[idx] += 0.35 * np.sin(2 * math.pi * (clang_freq * 1.5) * t[idx]) * np.exp(-12.0 * (t[idx] - t[idx][0]))
+                    clangs[idx] += 0.20 * np.sin(2 * math.pi * (clang_freq * 2.0) * t[idx]) * np.exp(-15.0 * (t[idx] - t[idx][0]))
+                    # Add metallic ringing
+                    clangs[idx] += 0.15 * np.sin(2 * math.pi * (clang_freq * 3.0) * t[idx]) * np.exp(-20.0 * (t[idx] - t[idx][0]))
             return clangs + 0.08 * rng.normal(size=len(t))
         return 0.25 * rng.normal(size=len(t))
 
