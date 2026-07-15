@@ -52,7 +52,7 @@ jobs:
       
       - name: Publish to Instagram and TikTok
         env:
-          BULKPUBLISH_API_KEY: ${{ secrets.BULKPUBLISH_API_KEY }}
+          INDREELFORGE_API_KEY: ${{ secrets.INDREELFORGE_API_KEY }}
           CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
           CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
           CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}

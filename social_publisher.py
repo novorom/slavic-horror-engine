@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Social media publisher using BulkPublish API
+Social media publisher using IndReelForge API
 Publishes videos to Instagram and TikTok automatically
 """
 
@@ -9,9 +9,9 @@ import requests
 import json
 from pathlib import Path
 
-# BulkPublish API
-BULKPUBLISH_API_KEY = os.environ.get("BULKPUBLISH_API_KEY")
-BULKPUBLISH_API_URL = "https://api.bulkpublish.com/api/posts"
+# IndReelForge API
+INDREELFORGE_API_KEY = os.environ.get("INDREELFORGE_API_KEY")
+INDREELFORGE_API_URL = "https://api.indreelforge.com/v1/post"
 
 # Cloudinary (for video hosting)
 CLOUDINARY_CLOUD_NAME = os.environ.get("CLOUDINARY_CLOUD_NAME")
@@ -62,7 +62,7 @@ def upload_to_cloudinary(video_path: str) -> str:
 
 def publish_to_social_media(video_url: str, tiktok_caption: str, instagram_caption: str, hashtags: list[str]) -> dict:
     """
-    Publish video to Instagram and TikTok using BulkPublish API
+    Publish video to Instagram and TikTok using IndReelForge API
     
     Args:
         video_url: Public URL of video
@@ -71,43 +71,31 @@ def publish_to_social_media(video_url: str, tiktok_caption: str, instagram_capti
         hashtags: List of hashtags
     
     Returns:
-        Response from BulkPublish API
+        Response from IndReelForge API
     """
-    if not BULKPUBLISH_API_KEY:
-        print("ERROR: BULKPUBLISH_API_KEY not set")
+    if not INDREELFORGE_API_KEY:
+        print("ERROR: INDREELFORGE_API_KEY not set")
         return {"error": "API key not set"}
     
     # Prepare captions with hashtags
     tiktok_full = f"{tiktok_caption}\n\n{' '.join(hashtags)}"
     instagram_full = f"{instagram_caption}\n\n{' '.join(hashtags)}"
     
-    # Publish to both platforms (Instagram not connected yet, but ready)
+    # Publish to TikTok only (Instagram not connected yet)
     payload = {
         "platforms": ["tiktok"],  # Add "instagram" when connected
-        "mediaUrl": video_url,
+        "video_url": video_url,
         "caption": tiktok_full,
-        "postTypeOverrides": {
-            "tiktok": "video",
-            "instagram": "reel"
-        },
-        # Platform-specific captions
-        "platformOverrides": {
-            "tiktok": {
-                "caption": tiktok_full
-            },
-            "instagram": {
-                "caption": instagram_full
-            }
-        }
+        "post_type": "video"
     }
     
     headers = {
-        "Authorization": f"Bearer {BULKPUBLISH_API_KEY}",
+        "Authorization": f"Bearer {INDREELFORGE_API_KEY}",
         "Content-Type": "application/json"
     }
     
     try:
-        response = requests.post(BULKPUBLISH_API_URL, json=payload, headers=headers)
+        response = requests.post(INDREELFORGE_API_URL, json=payload, headers=headers)
         response.raise_for_status()
         return response.json()
     except requests.exceptions.RequestException as e:
