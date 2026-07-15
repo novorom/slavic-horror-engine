@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Social media publisher using IndReelForge API
+Social media publisher using RelayAPI
 Publishes videos to Instagram and TikTok automatically
 """
 
@@ -9,9 +9,9 @@ import requests
 import json
 from pathlib import Path
 
-# IndReelForge API
-INDREELFORGE_API_KEY = os.environ.get("INDREELFORGE_API_KEY")
-INDREELFORGE_API_URL = "https://api.indreelforge.com/v1/post"
+# RelayAPI
+RELAYAPI_API_KEY = os.environ.get("RELAYAPI_API_KEY")
+RELAYAPI_API_URL = "https://api.relayapi.dev/v1/posts"
 
 # Cloudinary (for video hosting)
 CLOUDINARY_CLOUD_NAME = os.environ.get("CLOUDINARY_CLOUD_NAME")
@@ -62,7 +62,7 @@ def upload_to_cloudinary(video_path: str) -> str:
 
 def publish_to_social_media(video_url: str, tiktok_caption: str, instagram_caption: str, hashtags: list[str]) -> dict:
     """
-    Publish video to Instagram and TikTok using IndReelForge API
+    Publish video to Instagram and TikTok using RelayAPI
     
     Args:
         video_url: Public URL of video
@@ -71,10 +71,10 @@ def publish_to_social_media(video_url: str, tiktok_caption: str, instagram_capti
         hashtags: List of hashtags
     
     Returns:
-        Response from IndReelForge API
+        Response from RelayAPI
     """
-    if not INDREELFORGE_API_KEY:
-        print("ERROR: INDREELFORGE_API_KEY not set")
+    if not RELAYAPI_API_KEY:
+        print("ERROR: RELAYAPI_API_KEY not set")
         return {"error": "API key not set"}
     
     # Prepare captions with hashtags
@@ -84,18 +84,18 @@ def publish_to_social_media(video_url: str, tiktok_caption: str, instagram_capti
     # Publish to TikTok only (Instagram not connected yet)
     payload = {
         "platforms": ["tiktok"],  # Add "instagram" when connected
-        "video_url": video_url,
+        "media_url": video_url,
         "caption": tiktok_full,
         "post_type": "video"
     }
     
     headers = {
-        "Authorization": f"Bearer {INDREELFORGE_API_KEY}",
+        "Authorization": f"Bearer {RELAYAPI_API_KEY}",
         "Content-Type": "application/json"
     }
     
     try:
-        response = requests.post(INDREELFORGE_API_URL, json=payload, headers=headers)
+        response = requests.post(RELAYAPI_API_URL, json=payload, headers=headers)
         response.raise_for_status()
         return response.json()
     except requests.exceptions.RequestException as e:
